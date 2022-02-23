@@ -1,11 +1,10 @@
-# javascript-action-template
+# update-pr-comment
 
-This template can be used to quickly start a new custom js action repository. Click the `Use this template` button at the top to get started.
+Create and update a PR comment, rather than creating a new one with every run.
 
 ## Index
 
 - [Inputs](#inputs)
-- [Outputs](#outputs)
 - [Usage Examples](#usage-examples)
 - [Contributing](#contributing)
   - [Recompiling](#recompiling)
@@ -15,20 +14,6 @@ This template can be used to quickly start a new custom js action repository. Cl
 
 ## TODOs
 
-- Readme
-  - [ ] Update the Inputs section with the correct action inputs
-  - [ ] Update the Outputs section with the correct action outputs
-  - [ ] Update the Usage Example section with the correct usage
-- package.json
-  - [ ] Update the `name` with the new action value
-- src/main.js
-  - [ ] Implement your custom javascript action
-- action.yml
-  - [ ] Fill in the correct name, description, inputs and outputs
-- .prettierrc.json
-  - [ ] Update any preferences you might have
-- CODEOWNERS
-  - [ ] Update as appropriate
 - Repository Settings
   - [ ] On the _Options_ tab check the box to _Automatically delete head branches_
   - [ ] On the _Options_ tab update the repository's visibility (must be done by an org owner)
@@ -63,6 +48,7 @@ This template can be used to quickly start a new custom js action repository. Cl
 
 | Parameter            | Is Required | Default | Description                                                     |
 | -------------------- | ----------- | ------- | --------------------------------------------------------------- |
+| `github-token`       | true        |         | The GitHub token for interacting with the repository.           |
 | `comment-identifier` | true        |         | An unchanging identifier for the comment that should be updated |
 | `comment-content`    | true        |         | A string of Github-flavored markdown for your comment           |
 

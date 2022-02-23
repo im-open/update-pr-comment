@@ -3,14 +3,18 @@ name: 'JavaScript Action Template'
 description: 'Add description here'
 
 inputs:
-  input-1:
-    description: 'Add a description here'
+  github-token:
     required: true
+    description: The GitHub token for interacting with the repository.
 
-outputs:
-  output-1:
-    description: 'Add a description here'
+  comment-identifier:
+    required: true
+    description: An unchanging identifier for the comment that should be updated
+
+  comment-content:
+    required: true
+    description: A string of Github-flavored markdown for your comment
 
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
