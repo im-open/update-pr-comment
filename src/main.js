@@ -4,7 +4,7 @@ const github = require('@actions/github');
 // When used, this requiredArgOptions will error if a value has not been provided.
 const requiredArgOptions = {
   required: true,
-  trimWhitespace: true,
+  trimWhitespace: true
 };
 
 const token = core.getInput('github-token', requiredArgOptions);
@@ -30,7 +30,7 @@ async function lookForExistingComment() {
       repo,
       issue_number: github.context.payload.pull_request.number,
       per_page: maxResultsPerPage,
-      page,
+      page
     });
     const { data, status: resultStatus } = commentsResponse;
 
@@ -41,16 +41,16 @@ async function lookForExistingComment() {
         page += 1;
       }
 
-      const existingComment = data.find((c) => c.body.startsWith(markupPrefix));
+      const existingComment = data.find(c => c.body.startsWith(markupPrefix));
       if (existingComment) {
         core.info(
-          `An existing comment (${existingComment.id}) for ${commentId} was found and will be updated.`,
+          `An existing comment (${existingComment.id}) for ${commentId} was found and will be updated.`
         );
         return existingComment.id;
       }
     } else {
       core.info(
-        `Failed to list PR comments. Error code: ${commentsResponse.status}.  Will create new comment instead.`,
+        `Failed to list PR comments. Error code: ${commentsResponse.status}.  Will create new comment instead.`
       );
       return null;
     }
@@ -77,14 +77,14 @@ async function createOrUpdateComment() {
     core.info(infoMessage());
     const {
       status,
-      data: { id: updatedCommentId },
+      data: { id: updatedCommentId }
     } = await octokit.rest.issues[issueFunc]({
       owner,
       repo,
       body,
       ...(existingCommentId
         ? { comment_id: existingCommentId }
-        : { issue_number: github.context.payload.pull_request.number }),
+        : { issue_number: github.context.payload.pull_request.number })
     });
 
     if (status === successStatus) {
@@ -100,7 +100,7 @@ async function createOrUpdateComment() {
 async function run() {
   if (github.context.eventName !== 'pull_request') {
     core.info(
-      'This event was not triggered by a pull_request.  No comment will be created or updated.',
+      'This event was not triggered by a pull_request.  No comment will be created or updated.'
     );
     return;
   }

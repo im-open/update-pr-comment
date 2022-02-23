@@ -7,26 +7,31 @@
     "build": "npm ci && esbuild ./src/main.js --bundle --platform=node --outfile=dist/index.js && npm run format && git add dist/*",
     "bundle": "esbuild ./src/main.js --bundle --platform=node --outfile=dist/index.js",
     "format": "prettier --write **/*.js",
-    "format-check": "prettier --check **/*.js"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run build"
-    }
+    "format-check": "prettier --check **/*.js",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "wtw",
   "license": "ISC",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix"
+    ],
+    "*.{js,yml,json}": [
+      "prettier --write"
+    ]
+  },
   "dependencies": {
     "@actions/core": "^1.2.7",
-    "@actions/github": "^5.0.0"
+    "@actions/github": "^5.0.0",
+    "lint-staged": "^12.3.4"
   },
   "devDependencies": {
     "esbuild": "^0.12.8",
     "eslint": "^8.9.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.4",
-    "husky": "^4.3.8",
+    "husky": "^7.0.0",
     "install": "^0.13.0",
     "prettier": "^2.3.0"
   }
