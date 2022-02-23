@@ -15,34 +15,8 @@ Create and update a PR comment, rather than creating a new one with every run.
 ## TODOs
 
 - Repository Settings
-  - [ ] On the _Options_ tab check the box to _Automatically delete head branches_
   - [ ] On the _Options_ tab update the repository's visibility (must be done by an org owner)
-  - [ ] On the _Branches_ tab add a branch protection rule
-    - [ ] Check _Require pull request reviews before merging_
-    - [ ] Check _Dismiss stale pull request approvals when new commits are pushed_
-    - [ ] Check _Require review from Code Owners_
-    - [ ] Check _Include Administrators_
   - [ ] On the _Manage Access_ tab add the appropriate groups
-- About Section (accessed on the main page of the repo, click the gear icon to edit)
-  - [ ] The repo should have a short description of what it is for
-  - [ ] Add one of the following topic tags:
-        | Topic Tag | Usage |
-        | --------------- | ---------------------------------------- |
-        | az | For actions related to Azure |
-        | code | For actions related to building code |
-        | certs | For actions related to certificates |
-        | db | For actions related to databases |
-        | git | For actions related to Git |
-        | iis | For actions related to IIS |
-        | microsoft-teams | For actions related to Microsoft Teams |
-        | svc | For actions related to Windows Services |
-        | jira | For actions related to Jira |
-        | meta | For actions related to running workflows |
-        | pagerduty | For actions related to PagerDuty |
-        | test | For actions related to testing |
-        | tf | For actions related to Terraform |
-  - [ ] Add any additional topics for an action if they apply
-  - [ ] The Packages and Environments boxes can be unchecked
 
 ## Inputs
 
