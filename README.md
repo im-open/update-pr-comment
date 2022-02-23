@@ -20,11 +20,11 @@ Create and update a PR comment, rather than creating a new one with every run.
 
 ## Inputs
 
-| Parameter            | Is Required | Default | Description                                                     |
-| -------------------- | ----------- | ------- | --------------------------------------------------------------- |
-| `github-token`       | true        |         | The GitHub token for interacting with the repository.           |
-| `comment-identifier` | true        |         | An unchanging identifier for the comment that should be updated |
-| `comment-content`    | true        |         | A string of Github-flavored markdown for your comment           |
+| Parameter            | Is Required | Default | Description                                                                 |
+| -------------------- | ----------- | ------- | --------------------------------------------------------------------------- |
+| `github-token`       | true        |         | The GitHub token for interacting with the repository.                       |
+| `comment-identifier` | true        |         | An unchanging identifier for the comment that should be updated or created. |
+| `comment-content`    | true        |         | A string of Github-flavored markdown for your comment.                      |
 
 ## Usage Examples
 
@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: ''
+      - name: 'Create or Update PR Comment'
         uses: im-open/update-pr-comment@v1.0.0
         with:
           comment-identifier: 'specific-comment-identifier' # this should not change
