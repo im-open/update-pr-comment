@@ -4,7 +4,7 @@ import github from '@actions/github';
 // When used, this requiredArgOptions will error if a value has not been provided.
 const requiredArgOptions = {
   required: true,
-  trimWhitespace: true
+  trimWhitespace: true,
 };
 
 const token = core.getInput('github-token', requiredArgOptions);
@@ -36,7 +36,7 @@ async function findExistingComment() {
       repo,
       issue_number: prNumber,
       per_page: maxResultsPerPage,
-      page
+      page,
     });
     const { data, status: resultStatus } = commentsResponse;
 
@@ -47,16 +47,16 @@ async function findExistingComment() {
         page += 1;
       }
 
-      const existingComment = data.find(c => c.body?.startsWith(markupPrefix));
+      const existingComment = data.find((c) => c.body?.startsWith(markupPrefix));
       if (existingComment) {
         core.info(
-          `An existing comment (${existingComment.id}) for ${commentId} was found and will be updated.`
+          `An existing comment (${existingComment.id}) for ${commentId} was found and will be updated.`,
         );
         return existingComment?.id;
       }
     } else {
       core.info(
-        `Failed to list PR comments. Error code: ${commentsResponse.status}.  Will create new comment instead.`
+        `Failed to list PR comments. Error code: ${commentsResponse.status}.  Will create new comment instead.`,
       );
       return null;
     }
@@ -73,7 +73,7 @@ async function updateComment(body: string, existingCommentId: number) {
     owner,
     repo,
     body,
-    comment_id: existingCommentId
+    comment_id: existingCommentId,
   };
 
   return octokit.rest.issues.updateComment(requestParams);
@@ -84,7 +84,7 @@ async function createComment(body: string) {
     owner,
     repo,
     body,
-    issue_number: prNumber
+    issue_number: prNumber,
   };
 
   return octokit.rest.issues.createComment(requestParams);
@@ -107,7 +107,7 @@ async function createOrUpdateComment() {
 
     const {
       status,
-      data: { id: updatedCommentId }
+      data: { id: updatedCommentId },
     } = existingCommentId
       ? await updateComment(body, existingCommentId as number)
       : await createComment(body);
@@ -125,7 +125,7 @@ async function createOrUpdateComment() {
 async function run() {
   if (github.context.eventName !== 'pull_request') {
     core.info(
-      'This event was not triggered by a pull_request.  No comment will be created or updated.'
+      'This event was not triggered by a pull_request.  No comment will be created or updated.',
     );
     return;
   }
