@@ -6366,40 +6366,23 @@ function findExistingComment() {
   return __async(this, null, function* () {
     if (!pullRequest)
       return;
-    let hasMoreComments = true;
-    let page = 1;
-    const maxResultsPerPage = 30;
-    while (hasMoreComments) {
-      const commentsResponse = yield octokit.rest.issues.listComments({
-        owner,
-        repo,
-        issue_number: prNumber,
-        per_page: maxResultsPerPage,
-        page
-      });
-      const { data, status: resultStatus } = commentsResponse;
-      if (resultStatus === 200 && data) {
-        if (data.length < maxResultsPerPage) {
-          hasMoreComments = false;
-        } else {
-          page += 1;
-        }
-        const existingComment = data.find((c) => {
-          var _a;
-          return (_a = c.body) == null ? void 0 : _a.startsWith(markupPrefix);
-        });
-        if (existingComment) {
-          import_core.default.info(`An existing comment (${existingComment.id}) for ${commentId} was found and will be updated.`);
-          return existingComment == null ? void 0 : existingComment.id;
-        }
-      } else {
-        import_core.default.info(`Failed to list PR comments. Error code: ${commentsResponse.status}.  Will create new comment instead.`);
-        return null;
-      }
+    const comments = yield octokit.paginate(octokit.rest.issues.listComments, {
+      owner,
+      repo,
+      issue_number: prNumber
+    });
+    if (!comments.length) {
+      import_core.default.info(`An existing comment for ${commentId} was not found on PR #${prNumber}, will create a new one instead.`);
+      return null;
     }
-    import_core.default.info(`Finished getting comments for PR #${prNumber}.`);
-    import_core.default.info(`An existing comment for ${commentId} was not found, will create a new one instead.`);
-    return null;
+    const existingComment = comments.find((c) => {
+      var _a;
+      return (_a = c.body) == null ? void 0 : _a.startsWith(markupPrefix);
+    });
+    if (existingComment) {
+      import_core.default.info(`An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNumber} and will be updated.`);
+      return existingComment.id;
+    }
   });
 }
 function updateComment(body, existingCommentId) {

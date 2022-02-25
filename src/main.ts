@@ -25,47 +25,28 @@ const markupPrefix = `${commentStart} ${commentPackageName} - ${commentId} ${com
 async function findExistingComment() {
   if (!pullRequest) return;
 
-  let hasMoreComments = true;
-  let page = 1;
-  const maxResultsPerPage = 30;
+  const comments = await octokit.paginate(octokit.rest.issues.listComments, {
+    owner,
+    repo,
+    issue_number: prNumber,
+  });
 
-  while (hasMoreComments) {
-    // eslint-disable-next-line no-await-in-loop
-    const commentsResponse = await octokit.rest.issues.listComments({
-      owner,
-      repo,
-      issue_number: prNumber,
-      per_page: maxResultsPerPage,
-      page,
-    });
-    const { data, status: resultStatus } = commentsResponse;
+  if (!comments.length) {
+    core.info(
+      `An existing comment for ${commentId} was not found on PR #${prNumber}, will create a new one instead.`,
+    );
 
-    if (resultStatus === 200 && data) {
-      if (data.length < maxResultsPerPage) {
-        hasMoreComments = false;
-      } else {
-        page += 1;
-      }
-
-      const existingComment = data.find((c) => c.body?.startsWith(markupPrefix));
-      if (existingComment) {
-        core.info(
-          `An existing comment (${existingComment.id}) for ${commentId} was found and will be updated.`,
-        );
-        return existingComment?.id;
-      }
-    } else {
-      core.info(
-        `Failed to list PR comments. Error code: ${commentsResponse.status}.  Will create new comment instead.`,
-      );
-      return null;
-    }
+    return null;
   }
 
-  core.info(`Finished getting comments for PR #${prNumber}.`);
-  core.info(`An existing comment for ${commentId} was not found, will create a new one instead.`);
+  const existingComment = comments.find((c) => c.body?.startsWith(markupPrefix));
+  if (existingComment) {
+    core.info(
+      `An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNumber} and will be updated.`,
+    );
 
-  return null;
+    return existingComment.id;
+  }
 }
 
 async function updateComment(body: string, existingCommentId: number) {
