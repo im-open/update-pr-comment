@@ -12,19 +12,13 @@ Create and update a PR comment, rather than creating a new one with every run.
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
-## TODOs
-
-- Repository Settings
-  - [ ] On the _Options_ tab update the repository's visibility (must be done by an org owner)
-  - [ ] On the _Manage Access_ tab add the appropriate groups
-
 ## Inputs
 
-| Parameter            | Is Required | Default | Description                                                                 |
-| -------------------- | ----------- | ------- | --------------------------------------------------------------------------- |
-| `github-token`       | true        |         | The GitHub token for interacting with the repository.                       |
-| `comment-identifier` | true        |         | An unchanging identifier for the comment that should be updated or created. |
-| `comment-content`    | true        |         | A string of Github-flavored markdown for your comment.                      |
+| Parameter            | Is Required | Description                                                                 |
+| -------------------- | ----------- | --------------------------------------------------------------------------- |
+| `github-token`       | true        | The GitHub token for interacting with the repository.                       |
+| `comment-identifier` | true        | An unchanging identifier for the comment that should be updated or created. |
+| `comment-content`    | true        | A string of Github-flavored markdown for your comment.                      |
 
 ## Usage Examples
 
@@ -36,7 +30,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: 'Create or Update PR Comment'
-        uses: im-open/update-pr-comment@v1.0.0
+        uses: im-open/update-pr-comment@v1.0.2
         with:
           comment-identifier: 'specific-comment-identifier' # this should not change
           comment-content: |
@@ -82,7 +76,7 @@ This action uses [git-version-lite] to examine commit messages to determine whet
 
 ## Code of Conduct
 
-This project has adopted the [im-open's Code of Conduct](https://github.com/im-open/.github/blob/master/CODE_OF_CONDUCT.md).
+This project has adopted the [im-open's Code of Conduct](https://github.com/im-open/.github/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
