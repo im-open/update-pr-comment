@@ -1,7 +1,60 @@
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __markAsModule = target => __defProp(target, '__esModule', { value: true });
 var __commonJS = (cb, mod) =>
   function __require() {
     return mod || (0, cb[Object.keys(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
+var __reExport = (target, module2, desc) => {
+  if ((module2 && typeof module2 === 'object') || typeof module2 === 'function') {
+    for (let key of __getOwnPropNames(module2))
+      if (!__hasOwnProp.call(target, key) && key !== 'default')
+        __defProp(target, key, {
+          get: () => module2[key],
+          enumerable: !(desc = __getOwnPropDesc(module2, key)) || desc.enumerable
+        });
+  }
+  return target;
+};
+var __toModule = module2 => {
+  return __reExport(
+    __markAsModule(
+      __defProp(
+        module2 != null ? __create(__getProtoOf(module2)) : {},
+        'default',
+        module2 && module2.__esModule && 'default' in module2
+          ? { get: () => module2.default, enumerable: true }
+          : { value: module2, enumerable: true }
+      )
+    ),
+    module2
+  );
+};
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = value => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = value => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = x =>
+      x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // node_modules/@actions/core/lib/utils.js
 var require_utils = __commonJS({
@@ -15590,103 +15643,138 @@ var require_github = __commonJS({
   }
 });
 
-// src/main.js
-var core = require_core();
-var github = require_github();
+// src/main.ts
+var import_core = __toModule(require_core());
+var import_github = __toModule(require_github());
 var requiredArgOptions = {
   required: true,
   trimWhitespace: true
 };
-var token = core.getInput('github-token', requiredArgOptions);
-var octokit = github.getOctokit(token);
-var { owner, repo } = github.context.repo;
-var commentId = core.getInput('comment-identifier', requiredArgOptions);
-var commentContent = core.getInput('comment-content', requiredArgOptions);
-var commentStart = '<!-- im-open/update-pr-comment';
+var token = import_core.default.getInput('github-token', requiredArgOptions);
+var octokit = import_github.default.getOctokit(token);
+var { repo: contextRepo, payload: githubPaylod } = import_github.default.context;
+var { pull_request: pullRequest } = githubPaylod;
+var { owner, repo } = contextRepo;
+var prNumber = (pullRequest == null ? void 0 : pullRequest.number) || 0;
+var commentId = import_core.default.getInput('comment-identifier', requiredArgOptions);
+var commentContent = import_core.default.getInput('comment-content', requiredArgOptions);
+var commentStart = '<!--';
+var commentPackageName = 'im-open/update-pr-comment';
 var commentEnd = '-->';
-var markupPrefix = `${commentStart} - ${commentId} ${commentEnd}`;
-async function lookForExistingComment() {
-  let hasMoreComments = true;
-  let page = 1;
-  const maxResultsPerPage = 30;
-  while (hasMoreComments) {
-    const commentsResponse = await octokit.rest.issues.listComments({
-      owner,
-      repo,
-      issue_number: github.context.payload.pull_request.number,
-      per_page: maxResultsPerPage,
-      page
-    });
-    const { data, status: resultStatus } = commentsResponse;
-    if (resultStatus === 200 && data) {
-      if (data.length < maxResultsPerPage) {
-        hasMoreComments = false;
+var markupPrefix = `${commentStart} ${commentPackageName} - ${commentId} ${commentEnd}`;
+function findExistingComment() {
+  return __async(this, null, function* () {
+    if (!pullRequest) return;
+    let hasMoreComments = true;
+    let page = 1;
+    const maxResultsPerPage = 30;
+    while (hasMoreComments) {
+      const commentsResponse = yield octokit.rest.issues.listComments({
+        owner,
+        repo,
+        issue_number: prNumber,
+        per_page: maxResultsPerPage,
+        page
+      });
+      const { data, status: resultStatus } = commentsResponse;
+      if (resultStatus === 200 && data) {
+        if (data.length < maxResultsPerPage) {
+          hasMoreComments = false;
+        } else {
+          page += 1;
+        }
+        const existingComment = data.find(c => {
+          var _a;
+          return (_a = c.body) == null ? void 0 : _a.startsWith(markupPrefix);
+        });
+        if (existingComment) {
+          import_core.default.info(
+            `An existing comment (${existingComment.id}) for ${commentId} was found and will be updated.`
+          );
+          return existingComment == null ? void 0 : existingComment.id;
+        }
       } else {
-        page += 1;
-      }
-      const existingComment = data.find(c => c.body.startsWith(markupPrefix));
-      if (existingComment) {
-        core.info(
-          `An existing comment (${existingComment.id}) for ${commentId} was found and will be updated.`
+        import_core.default.info(
+          `Failed to list PR comments. Error code: ${commentsResponse.status}.  Will create new comment instead.`
         );
-        return existingComment.id;
+        return null;
       }
-    } else {
-      core.info(
-        `Failed to list PR comments. Error code: ${commentsResponse.status}.  Will create new comment instead.`
-      );
-      return null;
     }
-  }
-  core.info(`Finished getting comments for PR #${github.context.payload.pull_request.number}.`);
-  core.info(`An existing comment for ${commentId} was not found, will create a new one instead.`);
-  return null;
+    import_core.default.info(`Finished getting comments for PR #${prNumber}.`);
+    import_core.default.info(
+      `An existing comment for ${commentId} was not found, will create a new one instead.`
+    );
+    return null;
+  });
 }
-async function createOrUpdateComment() {
-  try {
-    core.info('Checking for existing comment on PR....');
-    const existingCommentId = await lookForExistingComment(octokit);
-    const body = `${markupPrefix}
-${commentContent}`;
-    const successStatus = existingCommentId ? 200 : 201;
-    const infoMessage = existingCommentId
-      ? `Updating existing PR #${existingCommentId} comment...`
-      : 'Creating a new PR comment...';
-    const issueFunc = existingCommentId ? 'updateComment' : 'createComment';
-    const action = existingCommentId ? 'create' : 'update';
-    core.info(infoMessage());
-    const {
-      status,
-      data: { id: updatedCommentId }
-    } = await octokit.rest.issues[issueFunc]({
+function updateComment(body, existingCommentId) {
+  return __async(this, null, function* () {
+    const requestParams = {
       owner,
       repo,
       body,
-      ...(existingCommentId
-        ? { comment_id: existingCommentId }
-        : { issue_number: github.context.payload.pull_request.number })
-    });
-    if (status === successStatus) {
-      core.info(`PR comment was ${action}d.  ID: ${updatedCommentId}.`);
-    } else {
-      core.setFailed(`Failed to ${action} PR comment. Error code: ${status}.`);
-    }
-  } catch (error) {
-    core.setFailed(`An error occurred trying to create or update the PR comment: ${error}`);
-  }
+      comment_id: existingCommentId
+    };
+    return octokit.rest.issues.updateComment(requestParams);
+  });
 }
-async function run() {
-  if (github.context.eventName !== 'pull_request') {
-    core.info(
-      'This event was not triggered by a pull_request.  No comment will be created or updated.'
-    );
-    return;
-  }
-  try {
-    await createOrUpdateComment();
-  } catch (error) {
-    core.setFailed(`An error occurred processing the summary file: ${error}`);
-  }
+function createComment(body) {
+  return __async(this, null, function* () {
+    const requestParams = {
+      owner,
+      repo,
+      body,
+      issue_number: prNumber
+    };
+    return octokit.rest.issues.createComment(requestParams);
+  });
+}
+function createOrUpdateComment() {
+  return __async(this, null, function* () {
+    if (!pullRequest) return;
+    try {
+      import_core.default.info('Checking for existing comment on PR....');
+      const existingCommentId = yield findExistingComment();
+      const body = `${markupPrefix}
+${commentContent}`;
+      const successStatus = existingCommentId ? 200 : 201;
+      const infoMessage = existingCommentId
+        ? `Updating existing PR #${existingCommentId} comment...`
+        : 'Creating a new PR comment...';
+      const action = existingCommentId ? 'update' : 'create';
+      import_core.default.info(infoMessage);
+      const {
+        status,
+        data: { id: updatedCommentId }
+      } = existingCommentId
+        ? yield updateComment(body, existingCommentId)
+        : yield createComment(body);
+      if (status === successStatus) {
+        import_core.default.info(`PR comment was ${action}d.  ID: ${updatedCommentId}.`);
+      } else {
+        import_core.default.setFailed(`Failed to ${action} PR comment. Error code: ${status}.`);
+      }
+    } catch (error) {
+      import_core.default.setFailed(
+        `An error occurred trying to create or update the PR comment: ${error}`
+      );
+    }
+  });
+}
+function run() {
+  return __async(this, null, function* () {
+    if (import_github.default.context.eventName !== 'pull_request') {
+      import_core.default.info(
+        'This event was not triggered by a pull_request.  No comment will be created or updated.'
+      );
+      return;
+    }
+    try {
+      yield createOrUpdateComment();
+    } catch (error) {
+      import_core.default.setFailed(`An error occurred processing the summary file: ${error}`);
+    }
+  });
 }
 run();
 /*!

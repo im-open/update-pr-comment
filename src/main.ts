@@ -1,5 +1,5 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
+import core from '@actions/core';
+import github from '@actions/github';
 
 // When used, this requiredArgOptions will error if a value has not been provided.
 const requiredArgOptions = {
@@ -9,16 +9,22 @@ const requiredArgOptions = {
 
 const token = core.getInput('github-token', requiredArgOptions);
 const octokit = github.getOctokit(token);
-const { owner, repo } = github.context.repo;
+const { repo: contextRepo, payload: githubPaylod } = github.context;
+const { pull_request: pullRequest } = githubPaylod;
+const { owner, repo } = contextRepo;
+const prNumber = pullRequest?.number || 0;
 
 const commentId = core.getInput('comment-identifier', requiredArgOptions);
 const commentContent = core.getInput('comment-content', requiredArgOptions);
 
-const commentStart = '<!-- im-open/update-pr-comment';
+const commentStart = '<!--';
+const commentPackageName = 'im-open/update-pr-comment';
 const commentEnd = '-->';
-const markupPrefix = `${commentStart} - ${commentId} ${commentEnd}`;
+const markupPrefix = `${commentStart} ${commentPackageName} - ${commentId} ${commentEnd}`;
 
-async function lookForExistingComment() {
+async function findExistingComment() {
+  if (!pullRequest) return;
+
   let hasMoreComments = true;
   let page = 1;
   const maxResultsPerPage = 30;
@@ -28,7 +34,7 @@ async function lookForExistingComment() {
     const commentsResponse = await octokit.rest.issues.listComments({
       owner,
       repo,
-      issue_number: github.context.payload.pull_request.number,
+      issue_number: prNumber,
       per_page: maxResultsPerPage,
       page
     });
@@ -41,12 +47,12 @@ async function lookForExistingComment() {
         page += 1;
       }
 
-      const existingComment = data.find(c => c.body.startsWith(markupPrefix));
+      const existingComment = data.find(c => c.body?.startsWith(markupPrefix));
       if (existingComment) {
         core.info(
           `An existing comment (${existingComment.id}) for ${commentId} was found and will be updated.`
         );
-        return existingComment.id;
+        return existingComment?.id;
       }
     } else {
       core.info(
@@ -56,36 +62,55 @@ async function lookForExistingComment() {
     }
   }
 
-  core.info(`Finished getting comments for PR #${github.context.payload.pull_request.number}.`);
+  core.info(`Finished getting comments for PR #${prNumber}.`);
   core.info(`An existing comment for ${commentId} was not found, will create a new one instead.`);
 
   return null;
 }
 
+async function updateComment(body: string, existingCommentId: number) {
+  const requestParams = {
+    owner,
+    repo,
+    body,
+    comment_id: existingCommentId
+  };
+
+  return octokit.rest.issues.updateComment(requestParams);
+}
+
+async function createComment(body: string) {
+  const requestParams = {
+    owner,
+    repo,
+    body,
+    issue_number: prNumber
+  };
+
+  return octokit.rest.issues.createComment(requestParams);
+}
+
 async function createOrUpdateComment() {
+  if (!pullRequest) return;
+
   try {
     core.info('Checking for existing comment on PR....');
-    const existingCommentId = await lookForExistingComment(octokit);
+    const existingCommentId = await findExistingComment();
     const body = `${markupPrefix}\n${commentContent}`;
     const successStatus = existingCommentId ? 200 : 201;
     const infoMessage = existingCommentId
       ? `Updating existing PR #${existingCommentId} comment...`
       : 'Creating a new PR comment...';
-    const issueFunc = existingCommentId ? 'updateComment' : 'createComment';
-    const action = existingCommentId ? 'create' : 'update';
+    const action = existingCommentId ? 'update' : 'create';
 
-    core.info(infoMessage());
+    core.info(infoMessage);
+
     const {
       status,
       data: { id: updatedCommentId }
-    } = await octokit.rest.issues[issueFunc]({
-      owner,
-      repo,
-      body,
-      ...(existingCommentId
-        ? { comment_id: existingCommentId }
-        : { issue_number: github.context.payload.pull_request.number })
-    });
+    } = existingCommentId
+      ? await updateComment(body, existingCommentId as number)
+      : await createComment(body);
 
     if (status === successStatus) {
       core.info(`PR comment was ${action}d.  ID: ${updatedCommentId}.`);
