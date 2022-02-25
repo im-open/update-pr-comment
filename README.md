@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: 'Create or Update PR Comment'
-        uses: im-open/update-pr-comment@v1.0.0
+        uses: im-open/update-pr-comment@v1.0.2
         with:
           comment-identifier: 'specific-comment-identifier' # this should not change
           comment-content: |
