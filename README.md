@@ -27,10 +27,10 @@ jobs:
   jobname:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: 'Create or Update PR Comment'
-        uses: im-open/update-pr-comment@v1.0.4
+        uses: im-open/update-pr-comment@v1.0.5
         with:
           comment-identifier: 'specific-comment-identifier' # this should not change
           comment-content: |
