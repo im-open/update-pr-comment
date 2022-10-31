@@ -99,7 +99,7 @@ async function createOrUpdateComment() {
       core.setFailed(`Failed to ${action} PR comment. Error code: ${status}.`);
     }
   } catch (error) {
-    core.setFailed(`An error occurred trying to create or update the PR comment: ${error}`);
+    core.setFailed(`An error occurred trying to create or update the PR comment: ${error.message}`);
   }
 }
 
@@ -114,7 +114,7 @@ async function run() {
   try {
     await createOrUpdateComment();
   } catch (error) {
-    core.setFailed(`An error occurred processing the summary file: ${error}`);
+    core.setFailed(`An error occurred processing the summary file: ${error.message}`);
   }
 }
 
