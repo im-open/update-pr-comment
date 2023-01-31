@@ -19,6 +19,10 @@ Create and update a PR comment, rather than creating a new one with every run.
 | `github-token`       | true        | The GitHub token for interacting with the repository.                       |
 | `comment-identifier` | true        | An unchanging identifier for the comment that should be updated or created. |
 | `comment-content`    | true        | A string of Github-flavored markdown for your comment.                      |
+| `pr-num`             | false\*     | The number for the target PR.                                               |
+| `pr-ref`             | false\*     | A git ref which points to a commit contained in the target PR.              |
+
+**_\* If the workflow containing this action is not running from a `pull_request` or `pull_request_target` event, one of these parameters is required._**
 
 ## Usage Examples
 
@@ -32,7 +36,11 @@ jobs:
       - name: 'Create or Update PR Comment'
         uses: im-open/update-pr-comment@v1.0.8
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-identifier: 'specific-comment-identifier' # this should not change
+          # Optional Inputs
+          # pr-num: 135
+          # pr-ref: ${{ github.ref }}
           comment-content: |
             # Comment Content
 
@@ -73,7 +81,7 @@ its dependencies into a single file located in the `dist` folder.
 
 ### Incrementing the Version
 
-Both the build and PR merge workflows will use the strategies below to determine what the next version will be.  If the build workflow was not able to automatically update the README.md action examples with the next version, the README.md should be updated manually as part of the PR using that calculated version.
+Both the build and PR merge workflows will use the strategies below to determine what the next version will be. If the build workflow was not able to automatically update the README.md action examples with the next version, the README.md should be updated manually as part of the PR using that calculated version.
 
 This action uses [git-version-lite] to examine commit messages to determine whether to perform a major, minor or patch increment on merge. The following table provides the fragment that should be included in a commit message to active different increment strategies.
 | Increment Type | Commit Message Fragment |
