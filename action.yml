@@ -15,6 +15,14 @@ inputs:
     required: true
     description: A string of Github-flavored markdown for your comment
 
+  pr-ref:
+    required: false
+    description: A git ref which points to a commit contained in the target PR
+
+  pr-num:
+    required: false
+    description: The number for the target PR
+
 runs:
   using: 'node16'
   main: 'dist/index.js'

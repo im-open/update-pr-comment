@@ -7483,24 +7483,26 @@ var octokit = import_github.default.getOctokit(token);
 var { repo: contextRepo, payload: githubPaylod } = import_github.default.context;
 var { pull_request: pullRequest } = githubPaylod;
 var { owner, repo } = contextRepo;
-var prNumber = (pullRequest == null ? void 0 : pullRequest.number) || 0;
+var inputPrRef = import_core.default.getInput("pr-ref", { required: false, trimWhitespace: true });
+var inputPrNum = import_core.default.getInput("pr-number", { required: false, trimWhitespace: true });
+var prNumber = parseInt(inputPrNum, 10) || (pullRequest == null ? void 0 : pullRequest.number) || 0;
 var commentId = import_core.default.getInput("comment-identifier", requiredArgOptions);
 var commentContent = import_core.default.getInput("comment-content", requiredArgOptions);
 var commentStart = "<!--";
 var commentPackageName = "im-open/update-pr-comment";
 var commentEnd = "-->";
 var markupPrefix = `${commentStart} ${commentPackageName} - ${commentId} ${commentEnd}`;
-function findExistingComment() {
+function findExistingComment(prNum) {
   return __async(this, null, function* () {
-    if (!pullRequest)
+    if (!prNum)
       return;
     const comments = yield octokit.paginate(octokit.rest.issues.listComments, {
       owner,
       repo,
-      issue_number: prNumber
+      issue_number: prNum
     });
     if (!comments.length) {
-      import_core.default.info(`An existing comment for ${commentId} was not found on PR #${prNumber}, will create a new one instead.`);
+      import_core.default.info(`An existing comment for ${commentId} was not found on PR #${prNum}, will create a new one instead.`);
       return null;
     }
     const existingComment = comments.find((c) => {
@@ -7508,7 +7510,7 @@ function findExistingComment() {
       return (_a = c.body) == null ? void 0 : _a.startsWith(markupPrefix);
     });
     if (existingComment) {
-      import_core.default.info(`An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNumber} and will be updated.`);
+      import_core.default.info(`An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNum} and will be updated.`);
       return existingComment.id;
     }
   });
@@ -7524,52 +7526,70 @@ function updateComment(body, existingCommentId) {
     return octokit.rest.issues.updateComment(requestParams);
   });
 }
-function createComment(body) {
+function createComment(body, prNum) {
   return __async(this, null, function* () {
     const requestParams = {
       owner,
       repo,
       body,
-      issue_number: prNumber
+      issue_number: prNum
     };
     return octokit.rest.issues.createComment(requestParams);
   });
 }
-function createOrUpdateComment() {
+function createOrUpdateComment(prNums) {
   return __async(this, null, function* () {
-    if (!pullRequest)
+    if (!prNums.length)
       return;
     try {
-      import_core.default.info("Checking for existing comment on PR....");
-      const existingCommentId = yield findExistingComment();
-      const body = `${markupPrefix}
+      prNums.forEach((prNum) => __async(this, null, function* () {
+        import_core.default.info("Checking for existing comment on PR....");
+        const existingCommentId = yield findExistingComment(prNum);
+        const body = `${markupPrefix}
 ${commentContent}`;
-      const successStatus = existingCommentId ? 200 : 201;
-      const infoMessage = existingCommentId ? `Updating existing PR #${existingCommentId} comment...` : "Creating a new PR comment...";
-      const action = existingCommentId ? "update" : "create";
-      import_core.default.info(infoMessage);
-      const {
-        status,
-        data: { id: updatedCommentId }
-      } = existingCommentId ? yield updateComment(body, existingCommentId) : yield createComment(body);
-      if (status === successStatus) {
-        import_core.default.info(`PR comment was ${action}d.  ID: ${updatedCommentId}.`);
-      } else {
-        import_core.default.setFailed(`Failed to ${action} PR comment. Error code: ${status}.`);
-      }
+        const successStatus = existingCommentId ? 200 : 201;
+        const infoMessage = existingCommentId ? `Updating existing PR #${existingCommentId} comment...` : "Creating a new PR comment...";
+        const action = existingCommentId ? "update" : "create";
+        import_core.default.info(infoMessage);
+        const {
+          status,
+          data: { id: updatedCommentId }
+        } = existingCommentId ? yield updateComment(body, existingCommentId) : yield createComment(body, prNum);
+        if (status === successStatus) {
+          import_core.default.info(`PR comment was ${action}d.  ID: ${updatedCommentId}.`);
+        } else {
+          import_core.default.setFailed(`Failed to ${action} PR comment. Error code: ${status}.`);
+        }
+      }));
     } catch (error) {
       import_core.default.setFailed(`An error occurred trying to create or update the PR comment: ${error.message}`);
     }
   });
 }
+function findPrs() {
+  return __async(this, null, function* () {
+    const prs = yield octokit.paginate(octokit.rest.search.issuesAndPullRequests, {
+      q: `${inputPrRef}+repo:${owner}/${repo}+type:pr`
+    });
+    return prs.map((pr) => pr.number);
+  });
+}
 function run() {
   return __async(this, null, function* () {
-    if (import_github.default.context.eventName !== "pull_request") {
-      import_core.default.info("This event was not triggered by a pull_request.  No comment will be created or updated.");
-      return;
+    let prNums = prNumber ? [prNumber] : null;
+    if (!prNums) {
+      if (!inputPrRef) {
+        import_core.default.info("This event was not triggered by a pull_request, and no ref or PR number was supplied.  No comment will be created or updated.");
+        return;
+      }
+      prNums = yield findPrs();
+      if (!prNums.length) {
+        import_core.default.info(`No PRs were found for the ref ${inputPrRef}.  No comment will be created or updated.`);
+        return;
+      }
     }
     try {
-      yield createOrUpdateComment();
+      yield createOrUpdateComment(prNums);
     } catch (error) {
       import_core.default.setFailed(`An error occurred processing the summary file: ${error.message}`);
     }
