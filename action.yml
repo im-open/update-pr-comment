@@ -1,6 +1,6 @@
-name: 'Create or Update PR Comment'
+name: Create or Update PR Comment
 
-description: 'Create and update a PR comment, rather than creating a new one with every run.'
+description: Create and update a PR comment, rather than creating a new one with every run.
 
 inputs:
   github-token:

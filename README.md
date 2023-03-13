@@ -34,7 +34,8 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: 'Create or Update PR Comment'
-        uses: im-open/update-pr-comment@v1.1.0
+        # You may also reference just the major or major.minor version.
+        uses: im-open/update-pr-comment@v1.1.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-identifier: 'specific-comment-identifier' # this should not change
