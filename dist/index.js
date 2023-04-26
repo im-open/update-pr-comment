@@ -7488,6 +7488,7 @@ var inputPrNum = import_core.default.getInput("pr-number", { required: false, tr
 var prNumber = parseInt(inputPrNum, 10) || (pullRequest == null ? void 0 : pullRequest.number) || 0;
 var commentId = import_core.default.getInput("comment-identifier", requiredArgOptions);
 var commentContent = import_core.default.getInput("comment-content", requiredArgOptions);
+var createIfNotExists = import_core.default.getBooleanInput("comment-content") || true;
 var commentStart = "<!--";
 var commentPackageName = "im-open/update-pr-comment";
 var commentEnd = "-->";
@@ -7545,6 +7546,10 @@ function createOrUpdateComment(prNums) {
       prNums.forEach((prNum) => __async(this, null, function* () {
         import_core.default.info("Checking for existing comment on PR....");
         const existingCommentId = yield findExistingComment(prNum);
+        if (!createIfNotExists && !existingCommentId) {
+          import_core.default.info("Comment does not exist and will not be created");
+          return;
+        }
         const body = `${markupPrefix}
 ${commentContent}`;
         const successStatus = existingCommentId ? 200 : 201;
