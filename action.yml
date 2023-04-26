@@ -22,6 +22,11 @@ inputs:
   pr-num:
     required: false
     description: The number for the target PR
+    
+  create-if-not-exists:
+    required: false
+    description: If commit does not already exists, create it
+    default: 'true'
 
 runs:
   using: 'node16'
