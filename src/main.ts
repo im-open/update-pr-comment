@@ -18,7 +18,7 @@ const prNumber = parseInt(inputPrNum, 10) || pullRequest?.number || 0;
 
 const commentId = core.getInput('comment-identifier', requiredArgOptions);
 const commentContent = core.getInput('comment-content', requiredArgOptions);
-const createIfNotExists = core.getBooleanInput('comment-content') || true;
+const createIfNotExists = core.getBooleanInput('comment-content');
 
 const commentStart = '<!--';
 const commentPackageName = 'im-open/update-pr-comment';
