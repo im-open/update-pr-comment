@@ -21,6 +21,7 @@ Create and update a PR comment, rather than creating a new one with every run.
 | `comment-content`    | true        | A string of Github-flavored markdown for your comment.                      |
 | `pr-num`             | false\*     | The number for the target PR.                                               |
 | `pr-ref`             | false\*     | A git ref which points to a commit contained in the target PR.              |
+| `create-if-not-exists` | false.    | If comment does not already exists, create it. Defaults to `true`           |
 
 **_\* If the workflow containing this action is not running from a `pull_request` or `pull_request_target` event, one of these parameters is required._**
 
