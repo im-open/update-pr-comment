@@ -7488,7 +7488,7 @@ var inputPrNum = import_core.default.getInput("pr-number", { required: false, tr
 var prNumber = parseInt(inputPrNum, 10) || (pullRequest == null ? void 0 : pullRequest.number) || 0;
 var commentId = import_core.default.getInput("comment-identifier", requiredArgOptions);
 var commentContent = import_core.default.getInput("comment-content", requiredArgOptions);
-var createIfNotExists = import_core.default.getBooleanInput("comment-content") || true;
+var createIfNotExists = import_core.default.getBooleanInput("comment-content");
 var commentStart = "<!--";
 var commentPackageName = "im-open/update-pr-comment";
 var commentEnd = "-->";
