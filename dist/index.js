@@ -7503,7 +7503,7 @@ function findExistingComment(prNum) {
       issue_number: prNum
     });
     if (!comments.length) {
-      import_core.default.info(`An existing comment for ${commentId} was not found on PR #${prNum}, will create a new one instead.`);
+      import_core.default.info(`An existing comment for ${commentId} was not found on PR #${prNum}.`);
       return null;
     }
     const existingComment = comments.find((c) => {
@@ -7511,7 +7511,7 @@ function findExistingComment(prNum) {
       return (_a = c.body) == null ? void 0 : _a.startsWith(markupPrefix);
     });
     if (existingComment) {
-      import_core.default.info(`An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNum} and will be updated.`);
+      import_core.default.info(`An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNum}.`);
       return existingComment.id;
     }
   });
@@ -7547,9 +7547,10 @@ function createOrUpdateComment(prNums) {
         import_core.default.info("Checking for existing comment on PR....");
         const existingCommentId = yield findExistingComment(prNum);
         if (!createIfNotExists && !existingCommentId) {
-          import_core.default.info("Comment does not exist and will not be created");
+          import_core.default.info("Comment will not be created.");
           return;
         }
+        existingCommentId ? import_core.default.info("Comment will be updated.") : import_core.default.info("Comment will be createed.");
         const body = `${markupPrefix}
 ${commentContent}`;
         const successStatus = existingCommentId ? 200 : 201;
