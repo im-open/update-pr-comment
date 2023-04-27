@@ -36,7 +36,7 @@ async function findExistingComment(prNum: number) {
 
   if (!comments.length) {
     core.info(
-      `An existing comment for ${commentId} was not found on PR #${prNum}, will create a new one instead.`,
+      `An existing comment for ${commentId} was not found on PR #${prNum}.`,
     );
 
     return null;
@@ -45,7 +45,7 @@ async function findExistingComment(prNum: number) {
   const existingComment = comments.find((c) => c.body?.startsWith(markupPrefix));
   if (existingComment) {
     core.info(
-      `An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNum} and will be updated.`,
+      `An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNum}.`,
     );
 
     return existingComment.id;
@@ -83,9 +83,13 @@ async function createOrUpdateComment(prNums: number[]) {
       const existingCommentId = await findExistingComment(prNum);
 
       if (!createIfNotExists && !existingCommentId) {
-        core.info('Comment does not exist and will not be created');
+        core.info('Comment will not be created.');
         return;
       }
+      
+      existingCommentId 
+        ? core.info('Comment will be updated.')
+        : core.info('Comment will be createed.')
 
       const body = `${markupPrefix}\n${commentContent}`;
       const successStatus = existingCommentId ? 200 : 201;
