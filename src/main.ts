@@ -86,10 +86,6 @@ async function createOrUpdateComment(prNums: number[]) {
         core.info('Comment will not be created.');
         return;
       }
-      
-      existingCommentId 
-        ? core.info('Comment will be updated.')
-        : core.info('Comment will be createed.')
 
       const body = `${markupPrefix}\n${commentContent}`;
       const successStatus = existingCommentId ? 200 : 201;
