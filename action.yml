@@ -25,7 +25,7 @@ inputs:
     
   create-if-not-exists:
     required: false
-    description: If commit does not already exists, create it
+    description: If comment does not already exists, create it
     default: 'true'
 
 runs:
