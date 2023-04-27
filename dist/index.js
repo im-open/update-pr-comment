@@ -7550,7 +7550,6 @@ function createOrUpdateComment(prNums) {
           import_core.default.info("Comment will not be created.");
           return;
         }
-        existingCommentId ? import_core.default.info("Comment will be updated.") : import_core.default.info("Comment will be createed.");
         const body = `${markupPrefix}
 ${commentContent}`;
         const successStatus = existingCommentId ? 200 : 201;
