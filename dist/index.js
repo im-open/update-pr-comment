@@ -7488,6 +7488,7 @@ var inputPrNum = import_core.default.getInput("pr-number", { required: false, tr
 var prNumber = parseInt(inputPrNum, 10) || (pullRequest == null ? void 0 : pullRequest.number) || 0;
 var commentId = import_core.default.getInput("comment-identifier", requiredArgOptions);
 var commentContent = import_core.default.getInput("comment-content", requiredArgOptions);
+var createIfNotExists = import_core.default.getBooleanInput("create-if-not-exists");
 var commentStart = "<!--";
 var commentPackageName = "im-open/update-pr-comment";
 var commentEnd = "-->";
@@ -7502,7 +7503,7 @@ function findExistingComment(prNum) {
       issue_number: prNum
     });
     if (!comments.length) {
-      import_core.default.info(`An existing comment for ${commentId} was not found on PR #${prNum}, will create a new one instead.`);
+      import_core.default.info(`An existing comment for ${commentId} was not found on PR #${prNum}.`);
       return null;
     }
     const existingComment = comments.find((c) => {
@@ -7510,7 +7511,7 @@ function findExistingComment(prNum) {
       return (_a = c.body) == null ? void 0 : _a.startsWith(markupPrefix);
     });
     if (existingComment) {
-      import_core.default.info(`An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNum} and will be updated.`);
+      import_core.default.info(`An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNum}.`);
       return existingComment.id;
     }
   });
@@ -7545,6 +7546,10 @@ function createOrUpdateComment(prNums) {
       prNums.forEach((prNum) => __async(this, null, function* () {
         import_core.default.info("Checking for existing comment on PR....");
         const existingCommentId = yield findExistingComment(prNum);
+        if (!createIfNotExists && !existingCommentId) {
+          import_core.default.info("Comment will not be created.");
+          return;
+        }
         const body = `${markupPrefix}
 ${commentContent}`;
         const successStatus = existingCommentId ? 200 : 201;

@@ -18,6 +18,7 @@ const prNumber = parseInt(inputPrNum, 10) || pullRequest?.number || 0;
 
 const commentId = core.getInput('comment-identifier', requiredArgOptions);
 const commentContent = core.getInput('comment-content', requiredArgOptions);
+const createIfNotExists = core.getBooleanInput('create-if-not-exists');
 
 const commentStart = '<!--';
 const commentPackageName = 'im-open/update-pr-comment';
@@ -35,7 +36,7 @@ async function findExistingComment(prNum: number) {
 
   if (!comments.length) {
     core.info(
-      `An existing comment for ${commentId} was not found on PR #${prNum}, will create a new one instead.`,
+      `An existing comment for ${commentId} was not found on PR #${prNum}.`,
     );
 
     return null;
@@ -44,7 +45,7 @@ async function findExistingComment(prNum: number) {
   const existingComment = comments.find((c) => c.body?.startsWith(markupPrefix));
   if (existingComment) {
     core.info(
-      `An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNum} and will be updated.`,
+      `An existing comment (${existingComment.id}) for ${commentId} was found on PR #${prNum}.`,
     );
 
     return existingComment.id;
@@ -80,6 +81,12 @@ async function createOrUpdateComment(prNums: number[]) {
     prNums.forEach(async (prNum) => {
       core.info('Checking for existing comment on PR....');
       const existingCommentId = await findExistingComment(prNum);
+
+      if (!createIfNotExists && !existingCommentId) {
+        core.info('Comment will not be created.');
+        return;
+      }
+
       const body = `${markupPrefix}\n${commentContent}`;
       const successStatus = existingCommentId ? 200 : 201;
       const infoMessage = existingCommentId
