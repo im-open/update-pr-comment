@@ -19,7 +19,7 @@ Create and update a PR comment, rather than creating a new one with every run.
 | `github-token`       | true        | The GitHub token for interacting with the repository.                       |
 | `comment-identifier` | true        | An unchanging identifier for the comment that should be updated or created. |
 | `comment-content`    | true        | A string of Github-flavored markdown for your comment.                      |
-| `pr-num`             | false\*     | The number for the target PR.                                               |
+| `pr-number           | false\*     | The number for the target PR.                                               |
 | `pr-ref`             | false\*     | A git ref which points to a commit contained in the target PR.              |
 | `create-if-not-exists` | false.    | If comment does not already exist, create it. Defaults to `true`           |
 
@@ -41,7 +41,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-identifier: 'specific-comment-identifier' # this should not change
           # Optional Inputs
-          # pr-num: 135
+          # pr-number: 135
           # pr-ref: ${{ github.ref }}
           comment-content: |
             # Comment Content
