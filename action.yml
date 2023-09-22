@@ -19,7 +19,7 @@ inputs:
     required: false
     description: A git ref which points to a commit contained in the target PR
 
-  pr-num:
+  pr-number:
     required: false
     description: The number for the target PR
     
