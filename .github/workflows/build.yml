@@ -18,15 +18,18 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      - name: Setup Node.js 16
-        uses: actions/setup-node@v3
+      - name: Assert action can execute
+        uses: ./
         with:
-          node-version: 16.x
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-content: |
+            This is a test comment to ensure the action can execute.
+            If you see this comment, the action executed appropriatly.
 
       # If this step results in changes, they will be committed in the last step
       - name: Recompile and Format action
