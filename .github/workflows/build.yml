@@ -27,6 +27,7 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-identifier: 'assert-action'
           comment-content: |
             This is a test comment to ensure the action can execute.
             If you see this comment, the action executed appropriatly.
