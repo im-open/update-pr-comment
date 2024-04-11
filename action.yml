@@ -27,6 +27,7 @@ inputs:
     required: false
     description: If comment does not already exist, create it
     default: 'true'
+
 runs:
-  using: 'node20'
+  using: 'node16'
   main: 'dist/index.js'
