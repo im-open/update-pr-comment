@@ -36,7 +36,7 @@ jobs:
 
       - name: 'Create or Update PR Comment'
         # You may also reference just the major or major.minor version.
-        uses: im-open/update-pr-comment@v1.1.3
+        uses: im-open/update-pr-comment@v1.2.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-identifier: 'specific-comment-identifier' # this should not change
