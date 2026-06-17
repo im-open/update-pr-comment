@@ -35,9 +35,7 @@ async function findExistingComment(prNum: number) {
   });
 
   if (!comments.length) {
-    core.info(
-      `An existing comment for ${commentId} was not found on PR #${prNum}.`,
-    );
+    core.info(`An existing comment for ${commentId} was not found on PR #${prNum}.`);
 
     return null;
   }

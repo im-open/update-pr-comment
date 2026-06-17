@@ -4,8 +4,8 @@ on:
   # access to the target repository from public forks.  This should remain as a pull_request
   # trigger because checkout, build, format and checking for changes do not need elevated
   # permissions to the repository.  The reduced permissions for public forks is adequate.
-  # Since this will commit readme/recompile changes back to the branch, special attention 
-  # should be paid to changes made to this workflow when reviewing the PR and granting 
+  # Since this will commit readme/recompile changes back to the branch, special attention
+  # should be paid to changes made to this workflow when reviewing the PR and granting
   # permission to first time contributors to run the workflow.
   pull_request:
   # Don't include any specific paths here so we always get a build that produces a status
@@ -15,10 +15,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
@@ -35,26 +35,26 @@ jobs:
       # If this step results in changes, they will be committed in the last step
       - name: Recompile and Format action
         run: npm run build
-      
+
       - name: Check for code changes to the action
         id: action-code
-        uses: im-open/did-custom-action-code-change@v1.0.1
+        uses: im-open/.github/.github/actions/did-custom-action-code-change@v2
         with:
           files-with-code: 'action.yml,package.json,package-lock.json'
           folders-with-code: 'src,dist'
           token: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Get the next version for the readme if there are code changes to the action
         if: steps.action-code.outputs.HAS_CHANGES == 'true'
         id: version
-        uses: im-open/git-version-lite@v2.1.2
+        uses: im-open/git-version-lite@v4
 
       - name: Update readme with next version if there are code changes to the action
         if: steps.action-code.outputs.HAS_CHANGES == 'true'
-        uses: im-open/update-action-version-in-file@v1.0.0
+        uses: im-open/.github/.github/actions/update-action-version-in-file@v2
         with:
           file-to-update: './README.md'
-          action-name:  ${{ github.repository }}
+          action-name: ${{ github.repository }}
           updated-version: ${{ steps.version.outputs.NEXT_VERSION }}
 
       - name: Commit unstaged readme/recompile changes if there are code changes to the action
