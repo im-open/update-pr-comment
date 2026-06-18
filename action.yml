@@ -22,11 +22,11 @@ inputs:
   pr-number:
     required: false
     description: The number for the target PR
-    
+
   create-if-not-exists:
     required: false
     description: If comment does not already exist, create it
     default: 'true'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'
